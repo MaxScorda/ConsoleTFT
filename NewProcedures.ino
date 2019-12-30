@@ -1,4 +1,5 @@
 void InputFromZ80() {
+  //gestione led
   static boolean primoGiro = false;
   static int ccont = 14;
   char cstr[10];
@@ -74,42 +75,46 @@ void serialEvent() {
 }
 
 void Qix() {
+  //il principio e': determino una meta per x0,x1,y0,y1 e quando lo raggiungo lo cambio
 #define SPIRE  24
-  int timedelay = 50;
-  byte minpasso = 1,  maxpasso = 6;
+  int timedelay = 50; //delay non bloccante
+  byte minpasso = 1,  maxpasso = 6; //range di calcolo rnd del passo tra spire
   static unsigned long timevis = 0;
   int ww = ssd1306_displayWidth() ;
   int hh = ssd1306_displayHeight() ;
   static byte x[SPIRE][3];
   static byte y[SPIRE][3];
-  //Prima dimensione 0:valori x, 1:valori y
-  //seconda dimensione x[0],x[1]
+  //Prima dimensione 0:valori x, 1:valori y, seconda dimensione x[0],x[1]
   static byte destinazione[2][2];
   //passo,x=0 e y=1   VEDERE SE FARNE 4
-  static byte passo[2];
+  static byte passo[2] = {RandNum(minpasso, maxpasso), RandNum(minpasso, maxpasso)};
   //colori seconda dimensione 0: colore attuale, 1:colore da raggiungere
   static byte colore[3][2] = {{128, 0}, {128, 0}, {128, 0}};
+  //indice vettori spire
+  static byte spireidx = SPIRE - 1;
+  int idxprec;
 
   if ( timevis + timedelay < millis()) {
+    idxprec = (spireidx + 1) % SPIRE;
     ssd1306_setColor(RGB_COLOR8(0, 0, 0));
-    ssd1306_drawLine8(x[0][0], y[0][0], x[0][1], y[0][1]);
+    ssd1306_drawLine8(x[idxprec][0], y[idxprec][0], x[idxprec][1], y[idxprec][1]);
 
     //spire
     for (int i = 0; i < 2; i++) {
       //punti x
-      if (abs(x[SPIRE - 1][i] - destinazione[0][i]) <= passo[0])  {
+      if (abs(x[spireidx][i] - destinazione[0][i]) <= passo[0])  {
         destinazione[0][i] = RandNum(0, ww - 1);
         passo[0] = RandNum(minpasso, maxpasso);
       }
-      if (x[SPIRE - 1][i] > destinazione[0][i]) x[SPIRE - 1][i] -= passo[0];
-      if (x[SPIRE - 1][i] < destinazione[0][i]) x[SPIRE - 1][i] += passo[0];
+      if (x[spireidx][i] > destinazione[0][i]) x[spireidx][i] -= passo[0];
+      if (x[spireidx][i] < destinazione[0][i]) x[spireidx][i] += passo[0];
       //punti y
-      if (abs(y[SPIRE - 1][i] - destinazione[1][i]) <= passo[1]) {
+      if (abs(y[spireidx][i] - destinazione[1][i]) <= passo[1]) {
         destinazione[1][i] = RandNum(0, hh - 1);
         passo[1] = RandNum(minpasso, maxpasso);
       }
-      if (y[SPIRE - 1][i] > destinazione[1][i]) y[SPIRE - 1][i] -= passo[1];
-      if (y[SPIRE - 1][i] < destinazione[1][i]) y[SPIRE - 1][i] += passo[1];
+      if (y[spireidx][i] > destinazione[1][i]) y[spireidx][i] -= passo[1];
+      if (y[spireidx][i] < destinazione[1][i]) y[spireidx][i] += passo[1];
     }
     //colori
     for (int i = 0; i < 3; i++) {
@@ -118,24 +123,11 @@ void Qix() {
       if (colore[i][0] < colore[i][1]) colore[i][0]++;
     }
 
-    //  shiftSpire();
-    for (int g = 1; g < SPIRE; g++)  {
-      x[g - 1][0] = x[g][0];
-      x[g - 1][1] = x[g][1];
-      y[g - 1][0] = y[g][0];
-      y[g - 1][1] = y[g][1];
-    }
-
     // ssd1306_setColor(RGB_COLOR8(255, 255, 255));
     ssd1306_setColor(RGB_COLOR8(colore[0][0], colore[1][0], colore[2][0]));
-    ssd1306_drawLine8( x[SPIRE - 1][0], y[SPIRE - 1][0] , x[SPIRE - 1][1], y[SPIRE - 1][1]);
+    ssd1306_drawLine8( x[spireidx][0], y[spireidx][0] , x[spireidx][1], y[spireidx][1]);
 
-    Serial.print(String(x[SPIRE - 1][0]) + " - ");
-    Serial.print(String(y[SPIRE - 1][0]) + " - ");
-    Serial.print(String(x[SPIRE - 1][1]) + " - ");
-    Serial.println(String(y[SPIRE - 1][1], DEC) );
-
-
+    spireidx = (spireidx + 1) % SPIRE;
     timevis = millis();
   }
 }

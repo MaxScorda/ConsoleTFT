@@ -24,7 +24,7 @@ uint8_t rotation = 0;
 
 //gestione led
 uint8_t pinInputLed = 2;
-boolean StatusLed, oldStatusLed;
+boolean StatusLed, oldStatusLed=true;
 
 //serial
 String inputString = "";         // a String to hold incoming data
