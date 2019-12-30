@@ -74,66 +74,72 @@ void serialEvent() {
 }
 
 void Qix() {
-  int spire = 24; //ex n
+#define SPIRE  24
   int timedelay = 50;
-  int passo=4;
+  byte minpasso = 1,  maxpasso = 6;
   static unsigned long timevis = 0;
-  int a, s, c;
   int ww = ssd1306_displayWidth() ;
   int hh = ssd1306_displayHeight() ;
-
-  //porre x come spire
-  static int x[36][3];
-  static int y[36][3];
+  static byte x[SPIRE][3];
+  static byte y[SPIRE][3];
   //Prima dimensione 0:valori x, 1:valori y
   //seconda dimensione x[0],x[1]
-  static int destinazione[2][2];
+  static byte destinazione[2][2];
+  //passo,x=0 e y=1   VEDERE SE FARNE 4
+  static byte passo[2];
+  //colori seconda dimensione 0: colore attuale, 1:colore da raggiungere
+  static byte colore[3][2] = {{128, 0}, {128, 0}, {128, 0}};
 
   if ( timevis + timedelay < millis()) {
-    a = RandNum(1, 8);
-    s = RandNum(1, 8);
-    c = RandNum(5, 25);
-
     ssd1306_setColor(RGB_COLOR8(0, 0, 0));
     ssd1306_drawLine8(x[0][0], y[0][0], x[0][1], y[0][1]);
 
-
+    //spire
     for (int i = 0; i < 2; i++) {
       //punti x
-      if (abs(x[spire - 1][i] - destinazione[0][i])<=passo) destinazione[0][i] = RandNum(0, ww - 1);
-      if (x[spire - 1][i] > destinazione[0][i]) x[spire - 1][i]-=passo;
-      if (x[spire - 1][i] < destinazione[0][i]) x[spire - 1][i]+=passo;
+      if (abs(x[SPIRE - 1][i] - destinazione[0][i]) <= passo[0])  {
+        destinazione[0][i] = RandNum(0, ww - 1);
+        passo[0] = RandNum(minpasso, maxpasso);
+      }
+      if (x[SPIRE - 1][i] > destinazione[0][i]) x[SPIRE - 1][i] -= passo[0];
+      if (x[SPIRE - 1][i] < destinazione[0][i]) x[SPIRE - 1][i] += passo[0];
       //punti y
-      if (abs(y[spire - 1][i] -destinazione[1][i])<=passo) destinazione[1][i] = RandNum(0, hh - 1);
-      if (y[spire - 1][i] > destinazione[1][i]) y[spire - 1][i]-=passo;
-      if (y[spire - 1][i] < destinazione[1][i]) y[spire - 1][i]+=passo;
+      if (abs(y[SPIRE - 1][i] - destinazione[1][i]) <= passo[1]) {
+        destinazione[1][i] = RandNum(0, hh - 1);
+        passo[1] = RandNum(minpasso, maxpasso);
+      }
+      if (y[SPIRE - 1][i] > destinazione[1][i]) y[SPIRE - 1][i] -= passo[1];
+      if (y[SPIRE - 1][i] < destinazione[1][i]) y[SPIRE - 1][i] += passo[1];
+    }
+    //colori
+    for (int i = 0; i < 3; i++) {
+      if (colore[i][0] == colore[i][1]) colore[i][1] = RandNum(127, 255);
+      if (colore[i][0] > colore[i][1]) colore[i][0]--;
+      if (colore[i][0] < colore[i][1]) colore[i][0]++;
     }
 
     //  shiftSpire();
-    for (int g = 1; g < spire; g++)  {
+    for (int g = 1; g < SPIRE; g++)  {
       x[g - 1][0] = x[g][0];
       x[g - 1][1] = x[g][1];
       y[g - 1][0] = y[g][0];
       y[g - 1][1] = y[g][1];
     }
 
-
-
     // ssd1306_setColor(RGB_COLOR8(255, 255, 255));
-    ssd1306_setColor(RGB_COLOR8(RandNum(128, 255), RandNum(128, 255), RandNum(128, 255)));
-    ssd1306_drawLine8( x[spire - 1][0], y[spire - 1][0] , x[spire - 1][1], y[spire - 1][1]);
-  
-      Serial.print(String(s) + ": ");
-      Serial.print(String(x[spire - 1][0]) + " - ");
-      Serial.print(String(y[spire - 1][0]) + " - ");
-      Serial.print(String(x[spire - 1][1]) + " - ");
-      Serial.println(String(y[spire - 1][1], DEC) );
- 
+    ssd1306_setColor(RGB_COLOR8(colore[0][0], colore[1][0], colore[2][0]));
+    ssd1306_drawLine8( x[SPIRE - 1][0], y[SPIRE - 1][0] , x[SPIRE - 1][1], y[SPIRE - 1][1]);
+
+    Serial.print(String(x[SPIRE - 1][0]) + " - ");
+    Serial.print(String(y[SPIRE - 1][0]) + " - ");
+    Serial.print(String(x[SPIRE - 1][1]) + " - ");
+    Serial.println(String(y[SPIRE - 1][1], DEC) );
+
     /*
-    Serial.print(String(destinazione[0][0]) + " - ");
-    Serial.print(String(destinazione[0][1]) + " - ");
-    Serial.print(String(destinazione[1][0]) + " - ");
-    Serial.println(String(destinazione[1][1]) );
+      Serial.print(String(destinazione[0][0]) + " - ");
+      Serial.print(String(destinazione[0][1]) + " - ");
+      Serial.print(String(destinazione[1][0]) + " - ");
+      Serial.println(String(destinazione[1][1]) );
     */
     timevis = millis();
   }
