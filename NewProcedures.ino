@@ -4,6 +4,7 @@ void InputFromZ80() {
   char cstr[10];
   //I know setup but i want to keep it clean
   if (!primoGiro) {
+    LayoutScreen() ;
     ssd1306_positiveMode();
     ssd1306_setColor(RGB_COLOR8(255, 255, 255));
     ssd1306_printFixed8(FARLEFT, 16, "Z80 RetroShield", STYLE_BOLD);
@@ -73,96 +74,108 @@ void serialEvent() {
 }
 
 void Qix() {
-  int spire = 3; //ex n
+  int spire = 16; //ex n
+  int timedelay = 50;
+  static unsigned long timevis = 0;
   int a, s, c;
-  int x1, y1, x2, y2;
   int ww = ssd1306_displayWidth() ;
   int hh = ssd1306_displayHeight() ;
-  ssd1306_clearScreen8( );
-  DIM l(spire, 2)
-  x1 = 300;
-  y1 = 100;
-  x2 = 350;
-  y2 = 150;
-  a = RandNum(1, 8);
-  s = RandNum(1, 8);
-  c = RadnNum(5, 25);
-  for (int f = 1; f <= a; f++)  {
+
+  //porre x come spire
+  static int x[16][2];
+  static int y[16][2];
+
+  if ( timevis + timedelay < millis()) {
+    a = RandNum(1, 8);
+    s = RandNum(1, 8);
+    c = RandNum(5, 25);
+
     ssd1306_setColor(RGB_COLOR8(0, 0, 0));
-    ssd1306_drawLine8(x(1, 1), y(1, 1), x(1, 2), y(1, 2));
+     ssd1306_drawLine8(x[0][0], y[0][0], x[0][1], y[0][1]);
+
+
+    //  shiftSpire();
+    for (int g = 1; g < spire; g++)  {
+      x[g - 1][0] = x[g][0];
+      x[g - 1][1] = x[g][1];
+      y[g - 1][0] = y[g][0];
+      y[g - 1][1] = y[g][1];
+    }
+
     if ( s == 1 ) {
-      x1 = x1 + c;
-      x2 = x2 - c;
+      if ( x[spire - 1][0] + c > ww - 1) x[spire - 1][0] = x[spire - 1][0]  - c;
+      else x[spire - 1][0] = x[spire - 1][0] + c;
+      if ( x[spire - 1][1] - c < 1 ) x[spire - 1][1] = x[spire - 1][1] + c;
+      else x[spire - 1][1] = x[spire - 1][1] - c;
+
     }
     else if (s == 2 ) {
-      x2 = x2 + c;
-      x1 = x1 - c;
+      if ( x[spire - 1][0] - c < 1 ) x[spire - 1][0] = x[spire - 1][0] + c;
+      else x[spire - 1][0] = x[spire - 1][0] - c;
+      if ( x[spire - 1][1] + c > ww - 1) x[spire - 1][1] = x[spire - 1][1]  - c;
+      else x[spire - 1][1] = x[spire - 1][1] + c;
     }
+
     else if (s == 3 ) {
-      y1 = y1 + c;
-      y2 = y2 - c;
+      if ( y[spire - 1][0] + c > hh - 1) y[spire - 1][0] = y[spire - 1][0] - c;
+      else y[spire - 1][0] = y[spire - 1][0] + c;
+      if ( y[spire - 1][1] - c < 1 ) y[spire - 1][1] = y[spire - 1][1] + c;
+      else y[spire - 1][1] = y[spire - 1][1] - c;
     }
     else if (s == 4) {
-      y2 = y2 + c;
-      y1 = y1 - c;
+      if ( y[spire - 1][0] - c < 1 ) y[spire - 1][0] = y[spire - 1][0] + c;
+      else y[spire - 1][0] = y[spire - 1][0] - c;
+      if ( y[spire - 1][1] + c > hh - 1) y[spire - 1][1] = y[spire - 1][1] - c;
+      else y[spire - 1][1] = y[spire - 1][1] + c;
     }
     else if (s == 5) {
-      x1 = x1 + c;
-      x2 = x2 + c;
+      if ( x[spire - 1][0] + c > ww - 1) x[spire - 1][0] = x[spire - 1][0]  - c;
+      else x[spire - 1][0] = x[spire - 1][0] + c;
+      if ( x[spire - 1][1] + c > ww - 1) x[spire - 1][1] = x[spire - 1][1]  - c;
+      else x[spire - 1][1] = x[spire - 1][1] + c;
     }
     else if (s == 6) {
-      x2 = x2 - c;
-      x1 = x1 - c;
+      if ( x[spire - 1][0] - c < 1 ) x[spire - 1][0] = x[spire - 1][0] + c;
+      else x[spire - 1][0] = x[spire - 1][0] - c;
+      if ( x[spire - 1][1] - c < 1 ) x[spire - 1][1] = x[spire - 1][1] + c;
+      else x[spire - 1][1] = x[spire - 1][1] - c;
     }
     else if (s == 7) {
-      y1 = y1 + c;
-      y2 = y2 + c;
+      if ( y[spire - 1][0] + c > hh - 1) y[spire - 1][0] = y[spire - 1][0] - c;
+      else y[spire - 1][0] = y[spire - 1][0] + c;
+      if ( y[spire - 1][1] + c > hh - 1) y[spire - 1][1] = y[spire - 1][1] - c;
+      else y[spire - 1][1] = y[spire - 1][1] + c;
     }
     else if (s == 8) {
-      y1 = y1 - c;
-      y2 = y2 - c;
+      if ( y[spire - 1][0] - c < 1 ) y[spire - 1][0] = y[spire - 1][0] + c;
+      else y[spire - 1][0] = y[spire - 1][0] - c;
+      if ( y[spire - 1][1] - c < 1 ) y[spire - 1][1] = y[spire - 1][1] + c;
+      else y[spire - 1][1] = y[spire - 1][1] - c;
     }
 
-    if ( x1 > ww - 1) {
-      x1 = x1 - c;
-    }
-    else  if ( x1 < 1 ) {
-      x1 = x1 + c;
-    }
-
-    if ( x2 > ww - 1 ) {
-      x2 = x2 - c;
-    }
-    else if ( x2 < 1) {
-      x2 = x2 + c;
-    }
-    if (y1 > hh) {
-      y1 = y1 - c;
-    }
-    else if (y1 < 1 ) {
-      y1 = y1 + c;
-    }
-    if ( y2 > hh - 1) {
-      y2 = y2 - c;
-    }
-    else if ( y2 < 1) {
-      y2 = y2 + c;
-    }
-    shiftSpire();
+    // ssd1306_setColor(RGB_COLOR8(255, 255, 255));
     ssd1306_setColor(RGB_COLOR8(RandNum(128, 255), RandNum(128, 255), RandNum(128, 255)));
-    ssd1306_drawLine8( (x(spire, 1), y(spire, 1)) - (x(spire, 2), y(spire, 2))
+    ssd1306_drawLine8( x[spire - 1][0], y[spire - 1][0] , x[spire - 1][1], y[spire - 1][1]);
+    Serial.print(String(s) + ": ");
+    Serial.print(String(x[spire - 1][0]) + " - ");
+    Serial.print(String(y[spire - 1][0]) + " - ");
+    Serial.print(String(x[spire - 1][1]) + " - ");
+    Serial.println(String(y[spire - 1][1], DEC) );
+    timevis = millis();
   }
 }
 
 void shiftSpire() {
-  for (int g = 2; g <= spire; g++)  {
+  /*
+    for (int g = 2; g <= spire; g++)  {
     x(g - 1, 1) = x(g, 1);
     x(g - 1, 2) = x(g, 2);
     y(g - 1, 1) = y(g, 1);
     y(g - 1, 2) = y(g, 2);
-  }
-  x(spire, 1) = x1;
-  x(spire, 2) = x2;
-  y(spire, 1) = y1;
-  y(spire, 2) = y2;
+    }
+    x(spire, 1) = x[spire-1][0];
+    x(spire, 2) = x[spire-1][1];
+    y(spire, 1) = y[spire-1][0];
+    y(spire, 2) = y[spire-1][1];
+  */
 }

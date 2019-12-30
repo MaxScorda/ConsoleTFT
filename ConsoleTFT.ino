@@ -32,7 +32,7 @@ bool stringComplete = false;  // whether the string is complete
 
 void setup() {
   InitScreen();
-  LayoutScreen() ;
+ // LayoutScreen() ;
   //led
   pinMode(pinInputLed, INPUT);
   StatusLed = digitalRead(pinInputLed);
@@ -50,6 +50,7 @@ goodRandomseed() ;
 }
 
 void loop() {
-  InputFromZ80();
-  serialZ80();
+  //InputFromZ80();
+  //serialZ80();
+  Qix() ;
 }
