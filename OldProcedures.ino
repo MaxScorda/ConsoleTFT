@@ -224,6 +224,12 @@ void Qix_old() {
     Serial.print(String(y[spire - 1][0]) + " - ");
     Serial.print(String(x[spire - 1][1]) + " - ");
     Serial.println(String(y[spire - 1][1], DEC) );
+        /*
+      Serial.print(String(destinazione[0][0]) + " - ");
+      Serial.print(String(destinazione[0][1]) + " - ");
+      Serial.print(String(destinazione[1][0]) + " - ");
+      Serial.println(String(destinazione[1][1]) );
+    */
     timevis = millis();
   }
 }

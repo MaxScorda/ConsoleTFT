@@ -113,7 +113,7 @@ void Qix() {
     }
     //colori
     for (int i = 0; i < 3; i++) {
-      if (colore[i][0] == colore[i][1]) colore[i][1] = RandNum(127, 255);
+      if (colore[i][0] == colore[i][1]) colore[i][1] = RandNum(128, 255);
       if (colore[i][0] > colore[i][1]) colore[i][0]--;
       if (colore[i][0] < colore[i][1]) colore[i][0]++;
     }
@@ -135,12 +135,7 @@ void Qix() {
     Serial.print(String(x[SPIRE - 1][1]) + " - ");
     Serial.println(String(y[SPIRE - 1][1], DEC) );
 
-    /*
-      Serial.print(String(destinazione[0][0]) + " - ");
-      Serial.print(String(destinazione[0][1]) + " - ");
-      Serial.print(String(destinazione[1][0]) + " - ");
-      Serial.println(String(destinazione[1][1]) );
-    */
+
     timevis = millis();
   }
 }
