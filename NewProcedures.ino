@@ -74,16 +74,20 @@ void serialEvent() {
 }
 
 void Qix() {
-  int spire = 16; //ex n
+  int spire = 24; //ex n
   int timedelay = 50;
+  int passo=4;
   static unsigned long timevis = 0;
   int a, s, c;
   int ww = ssd1306_displayWidth() ;
   int hh = ssd1306_displayHeight() ;
 
   //porre x come spire
-  static int x[16][2];
-  static int y[16][2];
+  static int x[36][3];
+  static int y[36][3];
+  //Prima dimensione 0:valori x, 1:valori y
+  //seconda dimensione x[0],x[1]
+  static int destinazione[2][2];
 
   if ( timevis + timedelay < millis()) {
     a = RandNum(1, 8);
@@ -91,8 +95,19 @@ void Qix() {
     c = RandNum(5, 25);
 
     ssd1306_setColor(RGB_COLOR8(0, 0, 0));
-     ssd1306_drawLine8(x[0][0], y[0][0], x[0][1], y[0][1]);
+    ssd1306_drawLine8(x[0][0], y[0][0], x[0][1], y[0][1]);
 
+
+    for (int i = 0; i < 2; i++) {
+      //punti x
+      if (abs(x[spire - 1][i] - destinazione[0][i])<=passo) destinazione[0][i] = RandNum(0, ww - 1);
+      if (x[spire - 1][i] > destinazione[0][i]) x[spire - 1][i]-=passo;
+      if (x[spire - 1][i] < destinazione[0][i]) x[spire - 1][i]+=passo;
+      //punti y
+      if (abs(y[spire - 1][i] -destinazione[1][i])<=passo) destinazione[1][i] = RandNum(0, hh - 1);
+      if (y[spire - 1][i] > destinazione[1][i]) y[spire - 1][i]-=passo;
+      if (y[spire - 1][i] < destinazione[1][i]) y[spire - 1][i]+=passo;
+    }
 
     //  shiftSpire();
     for (int g = 1; g < spire; g++)  {
@@ -102,80 +117,24 @@ void Qix() {
       y[g - 1][1] = y[g][1];
     }
 
-    if ( s == 1 ) {
-      if ( x[spire - 1][0] + c > ww - 1) x[spire - 1][0] = x[spire - 1][0]  - c;
-      else x[spire - 1][0] = x[spire - 1][0] + c;
-      if ( x[spire - 1][1] - c < 1 ) x[spire - 1][1] = x[spire - 1][1] + c;
-      else x[spire - 1][1] = x[spire - 1][1] - c;
 
-    }
-    else if (s == 2 ) {
-      if ( x[spire - 1][0] - c < 1 ) x[spire - 1][0] = x[spire - 1][0] + c;
-      else x[spire - 1][0] = x[spire - 1][0] - c;
-      if ( x[spire - 1][1] + c > ww - 1) x[spire - 1][1] = x[spire - 1][1]  - c;
-      else x[spire - 1][1] = x[spire - 1][1] + c;
-    }
-
-    else if (s == 3 ) {
-      if ( y[spire - 1][0] + c > hh - 1) y[spire - 1][0] = y[spire - 1][0] - c;
-      else y[spire - 1][0] = y[spire - 1][0] + c;
-      if ( y[spire - 1][1] - c < 1 ) y[spire - 1][1] = y[spire - 1][1] + c;
-      else y[spire - 1][1] = y[spire - 1][1] - c;
-    }
-    else if (s == 4) {
-      if ( y[spire - 1][0] - c < 1 ) y[spire - 1][0] = y[spire - 1][0] + c;
-      else y[spire - 1][0] = y[spire - 1][0] - c;
-      if ( y[spire - 1][1] + c > hh - 1) y[spire - 1][1] = y[spire - 1][1] - c;
-      else y[spire - 1][1] = y[spire - 1][1] + c;
-    }
-    else if (s == 5) {
-      if ( x[spire - 1][0] + c > ww - 1) x[spire - 1][0] = x[spire - 1][0]  - c;
-      else x[spire - 1][0] = x[spire - 1][0] + c;
-      if ( x[spire - 1][1] + c > ww - 1) x[spire - 1][1] = x[spire - 1][1]  - c;
-      else x[spire - 1][1] = x[spire - 1][1] + c;
-    }
-    else if (s == 6) {
-      if ( x[spire - 1][0] - c < 1 ) x[spire - 1][0] = x[spire - 1][0] + c;
-      else x[spire - 1][0] = x[spire - 1][0] - c;
-      if ( x[spire - 1][1] - c < 1 ) x[spire - 1][1] = x[spire - 1][1] + c;
-      else x[spire - 1][1] = x[spire - 1][1] - c;
-    }
-    else if (s == 7) {
-      if ( y[spire - 1][0] + c > hh - 1) y[spire - 1][0] = y[spire - 1][0] - c;
-      else y[spire - 1][0] = y[spire - 1][0] + c;
-      if ( y[spire - 1][1] + c > hh - 1) y[spire - 1][1] = y[spire - 1][1] - c;
-      else y[spire - 1][1] = y[spire - 1][1] + c;
-    }
-    else if (s == 8) {
-      if ( y[spire - 1][0] - c < 1 ) y[spire - 1][0] = y[spire - 1][0] + c;
-      else y[spire - 1][0] = y[spire - 1][0] - c;
-      if ( y[spire - 1][1] - c < 1 ) y[spire - 1][1] = y[spire - 1][1] + c;
-      else y[spire - 1][1] = y[spire - 1][1] - c;
-    }
 
     // ssd1306_setColor(RGB_COLOR8(255, 255, 255));
     ssd1306_setColor(RGB_COLOR8(RandNum(128, 255), RandNum(128, 255), RandNum(128, 255)));
     ssd1306_drawLine8( x[spire - 1][0], y[spire - 1][0] , x[spire - 1][1], y[spire - 1][1]);
-    Serial.print(String(s) + ": ");
-    Serial.print(String(x[spire - 1][0]) + " - ");
-    Serial.print(String(y[spire - 1][0]) + " - ");
-    Serial.print(String(x[spire - 1][1]) + " - ");
-    Serial.println(String(y[spire - 1][1], DEC) );
+  
+      Serial.print(String(s) + ": ");
+      Serial.print(String(x[spire - 1][0]) + " - ");
+      Serial.print(String(y[spire - 1][0]) + " - ");
+      Serial.print(String(x[spire - 1][1]) + " - ");
+      Serial.println(String(y[spire - 1][1], DEC) );
+ 
+    /*
+    Serial.print(String(destinazione[0][0]) + " - ");
+    Serial.print(String(destinazione[0][1]) + " - ");
+    Serial.print(String(destinazione[1][0]) + " - ");
+    Serial.println(String(destinazione[1][1]) );
+    */
     timevis = millis();
   }
-}
-
-void shiftSpire() {
-  /*
-    for (int g = 2; g <= spire; g++)  {
-    x(g - 1, 1) = x(g, 1);
-    x(g - 1, 2) = x(g, 2);
-    y(g - 1, 1) = y(g, 1);
-    y(g - 1, 2) = y(g, 2);
-    }
-    x(spire, 1) = x[spire-1][0];
-    x(spire, 2) = x[spire-1][1];
-    y(spire, 1) = y[spire-1][0];
-    y(spire, 2) = y[spire-1][1];
-  */
 }
