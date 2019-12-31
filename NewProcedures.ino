@@ -82,8 +82,8 @@ void Qix() {
   static unsigned long timevis = 0;
   int ww = ssd1306_displayWidth() ;
   int hh = ssd1306_displayHeight() ;
-  static byte x[SPIRE][3];
-  static byte y[SPIRE][3];
+  static int x[SPIRE][3];
+  static int y[SPIRE][3];
   //Prima dimensione 0:valori x, 1:valori y, seconda dimensione x[0],x[1]
   static byte destinazione[2][2];
   //passo,x=0 e y=1   VEDERE SE FARNE 4
