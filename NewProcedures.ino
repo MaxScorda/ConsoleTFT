@@ -131,3 +131,18 @@ void Qix() {
     timevis = millis();
   }
 }
+
+
+
+float returnSin(byte lenx, byte hiy, int vval) {
+  //lenx:lunghezza ciclo
+  //hiy:altezza
+  //vval: valore attuale
+  //es:lenx=8, hiy=2  0 1 2 1 0 -1 -2 -1
+  float duepi = 6.28318532;
+  float ret;
+  //onda triangolare
+  vval = (vval + ((lenx * 3) / 4)) % lenx;
+  ret = sin((vval * duepi) / lenx) * hiy;
+  return ret;
+}
