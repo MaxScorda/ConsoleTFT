@@ -6,8 +6,11 @@
 #include "ssd1306.h"
 #include "nano_engine.h"
 #include "sova.h"
+#include "Classes.h"
 
 SAppMenu menu;
+
+
 
 const char *menuItems[] =
 {

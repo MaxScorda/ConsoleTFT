@@ -182,6 +182,18 @@ void Qix() {
   }
 }
 
+void Stars() {
+#define NSTELLE  24
+  //struttura stelle
+  int timedelay = 50; //delay non bloccante
+  static unsigned long timevis = 0;
+  int ccont = 0;
+  if ( timevis + timedelay < millis()) {
+    Star star1 = Star(1);
+
+    timevis = millis();
+  }
+}
 
 
 float returnSin(byte lenx, byte hiy, int vval) {
