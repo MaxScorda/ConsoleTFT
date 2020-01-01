@@ -76,7 +76,7 @@ void serialEvent() {
 
 void Qix() {
   //il principio e': determino una meta per x0,x1,y0,y1 e quando lo raggiungo lo cambio
-#define SPIRE  24
+#define SPIRE  36
   int timedelay = 50; //delay non bloccante
   byte minpasso = 1,  maxpasso = 6; //range di calcolo rnd del passo tra spire
   static unsigned long timevis = 0;
@@ -87,12 +87,34 @@ void Qix() {
   //Prima dimensione 0:valori x, 1:valori y, seconda dimensione x[0],x[1]
   static byte destinazione[2][2];
   //passo,x=0 e y=1   VEDERE SE FARNE 4
-  static byte passo[2] = {RandNum(minpasso, maxpasso), RandNum(minpasso, maxpasso)};
+  static byte passo[SPIRE][2];
   //colori seconda dimensione 0: colore attuale, 1:colore da raggiungere
-  static byte colore[3][2] = {{128, 0}, {128, 0}, {128, 0}};
+  static byte colore[3][2] ;
   //indice vettori spire
   static byte spireidx = SPIRE - 1;
   int idxprec;
+  static boolean primoGiro = false;
+  //init
+  if (!primoGiro) {
+    for (int i = 0; i < SPIRE; i++) {
+      for (int j = 0; j < 2; j++) {
+        passo[i][j] = RandNum(minpasso, maxpasso);
+        x[i][j] = 0;
+        y[i][j] = 0;
+      }
+    }
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 2; j++) {
+        colore[i][j] = 128;
+      }
+    }
+    for (int i = 0; i < 2; i++) {
+      for (int j = 0; j < 2; j++) {
+        destinazione[i][j] = 0;
+      }
+    }
+    primoGiro = true;
+  }
 
   if ( timevis + timedelay < millis()) {
     idxprec = (spireidx + 1) % SPIRE;
@@ -102,19 +124,25 @@ void Qix() {
     //spire
     for (int i = 0; i < 2; i++) {
       //punti x
-      if (abs(x[spireidx][i] - destinazione[0][i]) <= passo[0])  {
+      if (abs(x[spireidx][i] - destinazione[0][i]) <= passo[spireidx][0] )  {
         destinazione[0][i] = RandNum(0, ww - 1);
-        passo[0] = RandNum(minpasso, maxpasso);
+        passo[spireidx][0] = RandNum(minpasso, maxpasso);
       }
-      if (x[spireidx][i] > destinazione[0][i]) x[spireidx][i] -= passo[0];
-      if (x[spireidx][i] < destinazione[0][i]) x[spireidx][i] += passo[0];
+      if (x[spireidx][i] > destinazione[0][i]) x[spireidx][i] -= passo[spireidx][0];
+      if (x[spireidx][i] < destinazione[0][i]) x[spireidx][i] += passo[spireidx][0];
       //punti y
-      if (abs(y[spireidx][i] - destinazione[1][i]) <= passo[1]) {
+      if (abs(y[spireidx][i] - destinazione[1][i]) <= passo[spireidx][1]) {
         destinazione[1][i] = RandNum(0, hh - 1);
-        passo[1] = RandNum(minpasso, maxpasso);
+        passo[spireidx][1] = RandNum(minpasso, maxpasso);
       }
-      if (y[spireidx][i] > destinazione[1][i]) y[spireidx][i] -= passo[1];
-      if (y[spireidx][i] < destinazione[1][i]) y[spireidx][i] += passo[1];
+      if (y[spireidx][i] > destinazione[1][i]) y[spireidx][i] -= passo[spireidx][1];
+      if (y[spireidx][i] < destinazione[1][i]) y[spireidx][i] += passo[spireidx][1];
+    }
+
+    for (int g = 0; g < 2; g++)  {
+      x[idxprec][g] = x[spireidx][g];
+      y[idxprec][g] = y[spireidx][g];
+      passo[idxprec][g] = passo[spireidx][g];
     }
     //colori
     for (int i = 0; i < 3; i++) {
@@ -127,6 +155,21 @@ void Qix() {
     ssd1306_setColor(RGB_COLOR8(colore[0][0], colore[1][0], colore[2][0]));
     ssd1306_drawLine8( x[spireidx][0], y[spireidx][0] , x[spireidx][1], y[spireidx][1]);
 
+    /*
+        Serial.print(String(spireidx) + ": ");
+        Serial.print(String(x[spireidx][0]) + " - ");
+        Serial.print(String(y[spireidx][0]) + " - ");
+        Serial.print(String(x[spireidx][1]) + " - ");
+        Serial.print(String(y[spireidx][1]) + " -- " );
+        Serial.print(String(passo[spireidx][0]) + "-");
+        Serial.print(String(passo[spireidx][1]) +  "   ");
+        for (int i = 0; i < 2; i++) {
+          for (int j = 0; j < 2; j++) {
+            Serial.print(String(destinazione[i][j] ) + "+");
+          }
+        }
+        Serial.println("");
+    */
     spireidx = (spireidx + 1) % SPIRE;
     timevis = millis();
   }
