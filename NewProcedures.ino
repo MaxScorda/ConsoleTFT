@@ -8,8 +8,8 @@ void InputFromZ80() {
     LayoutScreen() ;
     ssd1306_positiveMode();
     ssd1306_setColor(RGB_COLOR8(255, 255, 255));
-    ssd1306_printFixed8(FARLEFT, 16, "Z80 RetroShield", STYLE_BOLD);
-    ssd1306_printFixed8(FARLEFT, 24, "command say", STYLE_BOLD);
+    ssd1306_printFixed8(FARLEFT, 16, (char) F("Z80 RetroShield"), STYLE_BOLD);
+    ssd1306_printFixed8(FARLEFT, 24, (char) F("command say"), STYLE_BOLD);
     primoGiro = true;
   }
   StatusLed = digitalRead(pinInputLed);
@@ -17,17 +17,17 @@ void InputFromZ80() {
     if (StatusLed) {
       ssd1306_negativeMode();
       ssd1306_setColor(RGB_COLOR8(0, 255, 0));
-      ssd1306_printFixed8(FARLEFT, 40, "ACTIVATE  ", STYLE_BOLD);
+      ssd1306_printFixed8(FARLEFT, 40, (char) F("ACTIVATE  "), STYLE_BOLD);
     }
     else {
       ssd1306_positiveMode();
       ssd1306_setColor(RGB_COLOR8(255, 0, 0));
-      ssd1306_printFixed8(FARLEFT, 40, "DEactivate", STYLE_NORMAL);
+      ssd1306_printFixed8(FARLEFT, 40, (char) F("DEactivate"), STYLE_NORMAL);
     }
     oldStatusLed = StatusLed;
     ssd1306_positiveMode();
     ssd1306_setColor(RGB_COLOR8(255, 255, 255));
-    ssd1306_printFixed8(FARLEFT, 56, "Other " , STYLE_NORMAL);
+    ssd1306_printFixed8(FARLEFT, 56, (char) F("Other ") , STYLE_NORMAL);
     ssd1306_printFixed8(FARLEFT + 42, 56, "  " , STYLE_NORMAL);
     ssd1306_printFixed8(FARLEFT + 42, 56, itoa(ccont, cstr, 10), STYLE_NORMAL);
     if (ccont == 0) ccont = 14;
@@ -42,7 +42,7 @@ void serialZ80() {
   if (!primoGiro) {
     ssd1306_positiveMode();
     ssd1306_setColor(RGB_COLOR8(255, 255, 255));
-    ssd1306_printFixed8(FARLEFT, 72, "Serial Input", STYLE_NORMAL);
+    ssd1306_printFixed8(FARLEFT, 72, (char) F("Serial Input"), STYLE_NORMAL);
     primoGiro = true;
   }
 
@@ -78,7 +78,7 @@ void Qix() {
   //il principio e': determino una meta per x0,x1,y0,y1 e quando lo raggiungo lo cambio
 #define SPIRE  16
 #define NQIX  3
-  int timedelay = 50; //delay non bloccante
+  int timedelay = 25; //delay non bloccante
   byte minpasso = 1,  maxpasso = 6; //range di calcolo rnd del passo tra spire
   static unsigned long timevis = 0;
   int ww = ssd1306_displayWidth() ;
@@ -123,7 +123,7 @@ void Qix() {
     idxprec = (spireidx + 1) % SPIRE;
     for (int q = 0; q < NQIX; q++) {
       ssd1306_setColor(RGB_COLOR8(0, 0, 0));
-      ssd1306_drawLine16(x[q][idxprec][0], y[q][idxprec][0], x[q][idxprec][1], y[q][idxprec][1]);
+      ssd1306_drawLine8(x[q][idxprec][0], y[q][idxprec][0], x[q][idxprec][1], y[q][idxprec][1]);
 
 
       //spire
@@ -158,7 +158,7 @@ void Qix() {
 
       // ssd1306_setColor(RGB_COLOR8(255, 255, 255));
       ssd1306_setColor(RGB_COLOR8(colore[q][0][0], colore[q][1][0], colore[q][2][0]));
-      ssd1306_drawLine16( x[q][spireidx][0], y[q][spireidx][0] , x[q][spireidx][1], y[q][spireidx][1]);
+      ssd1306_drawLine8( x[q][spireidx][0], y[q][spireidx][0] , x[q][spireidx][1], y[q][spireidx][1]);
 
       /*
           Serial.print(String(spireidx) + ": ");
@@ -182,17 +182,18 @@ void Qix() {
   }
 }
 
-void Stars() {
-#define NSTELLE  24
+void Stars_Array() {
+#define NSTELLE  48
   int ww = ssd1306_displayWidth() ;
   int hh = ssd1306_displayHeight() ;
-  int timedelay = 50; //delay non bloccante
+  int timedelay = 25; //delay non bloccante
   static unsigned long timevis = 0;
   //struttura stelle
   struct dstars {
     byte id;
     int xpos;
     int ypos;
+    int grandezza;
     byte velocita; //1:ad ogni step fai un passo, 2:ogni 2 step un passo
     int contavelocita; //conteggio velocita, ogni stap tolgo 1 finche' non arrivo a zero
     byte passi; //quanti pixel avanzo
@@ -201,7 +202,7 @@ void Stars() {
   typedef struct dstars SDStars;
   static SDStars Stars[NSTELLE];
   boolean trovato = false;
-  int ccont = 0;
+
   if ( timevis + timedelay < millis()) {
     for (int i = 0; i < NSTELLE; i++) {
       //se la stella e' vuota la creo. NB 1 sola per giro pero'
@@ -210,16 +211,26 @@ void Stars() {
           Stars[i].id = i + 1;
           Stars[i].xpos = RandNum(0, ww - 1);
           Stars[i].ypos = 0;
-          Stars[i].velocita = RandNum(1, 5);
+          Stars[i].velocita = RandNum(1, 1);//1,5
           Stars[i].contavelocita = Stars[i].velocita;
-          Stars[i].passi = RandNum(1, 3);
+          Stars[i].passi = RandNum(1, 5);//1,3
+          Stars[i].grandezza = RandNum(0, 3);//1,3
+          Stars[i].colore[0] = RandNum(128, 255);
+          Stars[i].colore[1] = RandNum(128, 255);
+          Stars[i].colore[2] = RandNum(128, 255);
           trovato = true;
         }
       }
       else {
-        ssd1306_setColor(RGB_COLOR8(0, 0, 0));
-        ssd1306_putPixel8(Stars[i].xpos , Stars[i].ypos);
-        if (Stars[i].contavelocita == 0) {
+        if (Stars[i].contavelocita <= 1) {
+          ssd1306_setColor(RGB_COLOR8(0, 0, 0));
+          if (Stars[i].grandezza > 0) {
+            ssd1306_drawVLine8 (Stars[i].xpos , Stars[i].ypos - Stars[i].grandezza, Stars[i].ypos + Stars[i].grandezza);
+            ssd1306_drawHLine8 (Stars[i].xpos - Stars[i].grandezza, Stars[i].ypos , Stars[i].xpos + Stars[i].grandezza + 1);
+          }
+          else {
+            ssd1306_putPixel8(Stars[i].xpos , Stars[i].ypos);
+          }
           Stars[i].contavelocita = Stars[i].velocita;
           Stars[i].ypos += Stars[i].passi;
           if ( Stars[i].ypos > hh - 1) {
@@ -231,16 +242,45 @@ void Stars() {
         }
       }
       //disegna stella
-      if (Stars[i].id < 0) {
+      if (Stars[i].id > 0) {
         if (Stars[i].contavelocita == Stars[i].velocita) {
-          ssd1306_setColor(RGB_COLOR8(255, 255, 255));
+          ssd1306_setColor(RGB_COLOR8(Stars[i].colore[0], Stars[i].colore[1], Stars[i].colore[2]));
+          if (Stars[i].grandezza > 0) {
+            ssd1306_drawVLine8 (Stars[i].xpos , Stars[i].ypos - Stars[i].grandezza, Stars[i].ypos + Stars[i].grandezza);
+            ssd1306_drawHLine8 (Stars[i].xpos - Stars[i].grandezza, Stars[i].ypos , Stars[i].xpos + Stars[i].grandezza + 1);
+            ssd1306_setColor(RGB_COLOR8(255, 255, 255));
+          }
           ssd1306_putPixel8(Stars[i].xpos , Stars[i].ypos);
         }
       }
     }
-    ccont++;
     timevis = millis();
   }
+
+}
+
+void ScrollText() {
+    static unsigned long timescroll = 0;
+  String strInfo = "";
+  char cstr[10];
+  char menuChoice[20];
+  static boolean primoGiro = false;
+  //init
+  if (!primoGiro) {
+    for (int i = 0; i < 5; i++) {
+      strInfo = strInfo + strcpy_P(menuChoice, (char*)pgm_read_word(&(menu_Info[i])));
+    }
+    Row1.NewString(strInfo);
+    primoGiro = true;
+  }
+
+  if (timescroll + 500 < millis()) {
+    strInfo = Row1.ScrollT();
+    strInfo.toCharArray(cstr, 10);
+    ssd1306_printFixed8(FARLEFT , 80, cstr , STYLE_BOLD);
+    timescroll = millis();
+  }
+
 }
 
 

@@ -6,7 +6,10 @@
 #include "ssd1306.h"
 #include "nano_engine.h"
 #include "sova.h"
+#include <TEFX.h>
+#include "Config.h";
 #include "Classes.h"
+
 
 SAppMenu menu;
 
@@ -27,15 +30,18 @@ uint8_t rotation = 0;
 
 //gestione led
 uint8_t pinInputLed = 2;
-boolean StatusLed, oldStatusLed=true;
+boolean StatusLed, oldStatusLed = true;
 
 //serial
 String inputString = "";         // a String to hold incoming data
 bool stringComplete = false;  // whether the string is complete
 
+//scroll
+TEFX Row1("", 16);
+
 void setup() {
   InitScreen();
- // LayoutScreen() ;
+  // LayoutScreen() ;
   //led
   pinMode(pinInputLed, INPUT);
   StatusLed = digitalRead(pinInputLed);
@@ -45,8 +51,8 @@ void setup() {
   Serial.begin(19200);
   inputString.reserve(80);
 
-//vari
-goodRandomseed() ;
+  //vari
+  goodRandomseed() ;
   Serial.println("a");
   Serial.println("b");
   Serial.println("S");
@@ -56,4 +62,6 @@ void loop() {
   //InputFromZ80();
   //serialZ80();
   Qix() ;
+  Stars_Array() ;
+ // ScrollText();
 }
