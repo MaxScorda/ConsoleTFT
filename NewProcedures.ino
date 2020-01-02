@@ -123,7 +123,7 @@ void Qix() {
     idxprec = (spireidx + 1) % SPIRE;
     for (int q = 0; q < NQIX; q++) {
       ssd1306_setColor(RGB_COLOR8(0, 0, 0));
-      ssd1306_drawLine8(x[q][idxprec][0], y[q][idxprec][0], x[q][idxprec][1], y[q][idxprec][1]);
+      ssd1306_drawLine16(x[q][idxprec][0], y[q][idxprec][0], x[q][idxprec][1], y[q][idxprec][1]);
 
 
       //spire
@@ -158,7 +158,7 @@ void Qix() {
 
       // ssd1306_setColor(RGB_COLOR8(255, 255, 255));
       ssd1306_setColor(RGB_COLOR8(colore[q][0][0], colore[q][1][0], colore[q][2][0]));
-      ssd1306_drawLine8( x[q][spireidx][0], y[q][spireidx][0] , x[q][spireidx][1], y[q][spireidx][1]);
+      ssd1306_drawLine16( x[q][spireidx][0], y[q][spireidx][0] , x[q][spireidx][1], y[q][spireidx][1]);
 
       /*
           Serial.print(String(spireidx) + ": ");
@@ -184,13 +184,61 @@ void Qix() {
 
 void Stars() {
 #define NSTELLE  24
-  //struttura stelle
+  int ww = ssd1306_displayWidth() ;
+  int hh = ssd1306_displayHeight() ;
   int timedelay = 50; //delay non bloccante
   static unsigned long timevis = 0;
+  //struttura stelle
+  struct dstars {
+    byte id;
+    int xpos;
+    int ypos;
+    byte velocita; //1:ad ogni step fai un passo, 2:ogni 2 step un passo
+    int contavelocita; //conteggio velocita, ogni stap tolgo 1 finche' non arrivo a zero
+    byte passi; //quanti pixel avanzo
+    byte colore[3];
+  };
+  typedef struct dstars SDStars;
+  static SDStars Stars[NSTELLE];
+  boolean trovato = false;
   int ccont = 0;
   if ( timevis + timedelay < millis()) {
-    Star star1 = Star(1);
-
+    for (int i = 0; i < NSTELLE; i++) {
+      //se la stella e' vuota la creo. NB 1 sola per giro pero'
+      if (Stars[i].id == 0) {
+        if (trovato == false) {
+          Stars[i].id = i + 1;
+          Stars[i].xpos = RandNum(0, ww - 1);
+          Stars[i].ypos = 0;
+          Stars[i].velocita = RandNum(1, 5);
+          Stars[i].contavelocita = Stars[i].velocita;
+          Stars[i].passi = RandNum(1, 3);
+          trovato = true;
+        }
+      }
+      else {
+        ssd1306_setColor(RGB_COLOR8(0, 0, 0));
+        ssd1306_putPixel8(Stars[i].xpos , Stars[i].ypos);
+        if (Stars[i].contavelocita == 0) {
+          Stars[i].contavelocita = Stars[i].velocita;
+          Stars[i].ypos += Stars[i].passi;
+          if ( Stars[i].ypos > hh - 1) {
+            Stars[i].id = 0;
+          }
+        }
+        else {
+          Stars[i].contavelocita--;
+        }
+      }
+      //disegna stella
+      if (Stars[i].id < 0) {
+        if (Stars[i].contavelocita == Stars[i].velocita) {
+          ssd1306_setColor(RGB_COLOR8(255, 255, 255));
+          ssd1306_putPixel8(Stars[i].xpos , Stars[i].ypos);
+        }
+      }
+    }
+    ccont++;
     timevis = millis();
   }
 }

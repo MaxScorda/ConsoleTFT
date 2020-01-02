@@ -20,6 +20,5 @@ class Star {
       return xpos;
     }
 };
-
-
+//  INIT Star star1 = Star(1);
 #endif
