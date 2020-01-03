@@ -1,84 +1,8 @@
-void InputFromZ80() {
-  //gestione led
-  static boolean primoGiro = false;
-  static int ccont = 14;
-  char cstr[10];
-  //I know setup but i want to keep it clean
-  if (!primoGiro) {
-    LayoutScreen() ;
-    ssd1306_positiveMode();
-    ssd1306_setColor(RGB_COLOR8(255, 255, 255));
-    ssd1306_printFixed8(FARLEFT, 16, "Z80 RetroShield", STYLE_BOLD);
-    ssd1306_printFixed8(FARLEFT, 24, "command say", STYLE_BOLD);
-    primoGiro = true;
-  }
-  StatusLed = digitalRead(pinInputLed);
-  if (StatusLed != oldStatusLed) {
-    if (StatusLed) {
-      ssd1306_negativeMode();
-      ssd1306_setColor(RGB_COLOR8(0, 255, 0));
-      ssd1306_printFixed8(FARLEFT, 40, "ACTIVATE  ", STYLE_BOLD);
-    }
-    else {
-      ssd1306_positiveMode();
-      ssd1306_setColor(RGB_COLOR8(255, 0, 0));
-      ssd1306_printFixed8(FARLEFT, 40, "DEactivate", STYLE_NORMAL);
-    }
-    oldStatusLed = StatusLed;
-    ssd1306_positiveMode();
-    ssd1306_setColor(RGB_COLOR8(255, 255, 255));
-    ssd1306_printFixed8(FARLEFT, 56, "Other " , STYLE_NORMAL);
-    ssd1306_printFixed8(FARLEFT + 42, 56, "  " , STYLE_NORMAL);
-    ssd1306_printFixed8(FARLEFT + 42, 56, itoa(ccont, cstr, 10), STYLE_NORMAL);
-    if (ccont == 0) ccont = 14;
-    ccont--;
-  }
-}
-
-void serialZ80() {
-  static boolean primoGiro = false;
-  char cstr[10];
-  //I know setup but i want to keep it clean
-  if (!primoGiro) {
-    ssd1306_positiveMode();
-    ssd1306_setColor(RGB_COLOR8(255, 255, 255));
-    ssd1306_printFixed8(FARLEFT, 72, "Serial Input", STYLE_NORMAL);
-    primoGiro = true;
-  }
-
-  if (stringComplete) {
-    //  Serial.println(inputString);
-    ssd1306_positiveMode();
-    ssd1306_setColor(RGB_COLOR8(255, 255, 255));
-    inputString.toCharArray(cstr, 10);
-    ssd1306_printFixed8(FARLEFT + 42, 80, cstr , STYLE_BOLD);
-    // clear the string:
-    inputString = "";
-    stringComplete = false;
-  }
-}
-
-void serialEvent() {
-  byte ccont = 0;
-  while (Serial.available()) {
-    char inChar = (char)Serial.read();
-    // add it to the inputString:
-    inputString += inChar;
-    // if the incoming character is a newline, set a flag so the main loop can
-    // do something about it:
-    if (inChar == '\n') {
-      stringComplete = true;
-    }
-    stringComplete = true;
-    ccont++;
-  }
-}
-
 void Qix() {
   //il principio e': determino una meta per x0,x1,y0,y1 e quando lo raggiungo lo cambio
 #define SPIRE  16
 #define NQIX  3
-  int timedelay = 25; //delay non bloccante
+  byte timedelay = 25; //delay non bloccante
   byte minpasso = 1,  maxpasso = 6; //range di calcolo rnd del passo tra spire
   static unsigned long timevis = 0;
   int ww = ssd1306_displayWidth() ;
@@ -93,11 +17,13 @@ void Qix() {
   static byte colore[NQIX][3][2] ;
   //indice vettori spire
   static byte spireidx = SPIRE - 1;
-  int idxprec;
+  byte idxprec;
   static boolean primoGiro = false;
   //init
+
   if (!primoGiro) {
-    for (int q = 0; q < NQIX; q++) {
+    /*
+      for (int q = 0; q < NQIX; q++) {
       for (int i = 0; i < SPIRE; i++) {
         for (int j = 0; j < 2; j++) {
           passo[q][i][j] = RandNum(minpasso, maxpasso);
@@ -115,17 +41,17 @@ void Qix() {
           destinazione[q][i][j] = 0;
         }
       }
-    }
+      }
+    */
     primoGiro = true;
   }
+
 
   if ( timevis + timedelay < millis()) {
     idxprec = (spireidx + 1) % SPIRE;
     for (int q = 0; q < NQIX; q++) {
       ssd1306_setColor(RGB_COLOR8(0, 0, 0));
       ssd1306_drawLine8(x[q][idxprec][0], y[q][idxprec][0], x[q][idxprec][1], y[q][idxprec][1]);
-
-
       //spire
       for (int i = 0; i < 2; i++) {
         //punti x
@@ -175,7 +101,6 @@ void Qix() {
           }
           Serial.println("");
       */
-
     }
     spireidx = (spireidx + 1) % SPIRE;
     timevis = millis();
@@ -183,12 +108,17 @@ void Qix() {
 }
 
 void Stars_Array() {
+  //Stelle
+  // 5 velocita' (passi)
+  // colori pulsanti
+  // 4 grandezze
+  // se configurato velocita e sistemati gli IF, fa le stelle a scomparsa/lampeggianti
 #define NSTELLE  48
   //struttura stelle
   struct dstars {
     byte id;
-    int xpos;
-    int ypos;
+    byte xpos; //meglio int avendo spazio
+    byte ypos; //meglio int avendo spazio
     byte grandezza;
     byte velocita; //1:ad ogni step fai un passo, 2:ogni 2 step un passo
     char contavelocita; //conteggio velocita, ogni stap tolgo 1 finche' non arrivo a 1
@@ -201,8 +131,8 @@ void Stars_Array() {
   //
   int ww = ssd1306_displayWidth() ;
   int hh = ssd1306_displayHeight() ;
-  int timedelay = 25; //delay non bloccante
-  int stepcolore = 5;
+  byte timedelay = 25; //delay non bloccante
+  byte stepcolore = 5;
   static unsigned long timevis = 0;
   boolean trovato = false;
 
@@ -214,7 +144,7 @@ void Stars_Array() {
           Stars[i].id = i + 1;
           Stars[i].xpos = RandNum(0, ww - 1);
           Stars[i].ypos = 0;
-          Stars[i].velocita = RandNum(1, 1);//1,5
+          Stars[i].velocita = RandNum(1, 1);//1,5 Disattivato perche' si muovono a scatti. Attivate col lampeggio
           Stars[i].contavelocita = Stars[i].velocita;
           Stars[i].passi = RandNum(1, 5);//1,3
           Stars[i].grandezza = RandNum(0, 3);//1,3
@@ -225,7 +155,7 @@ void Stars_Array() {
         }
       }
       else {
-        if (Stars[i].contavelocita <= 1) {
+        if (Stars[i].contavelocita <= 1) { // IF qui per stelle senza lampeggio
           ssd1306_setColor(RGB_COLOR8(0, 0, 0));
           if (Stars[i].grandezza > 0) {
             ssd1306_drawVLine8 (Stars[i].xpos , Stars[i].ypos - Stars[i].grandezza, Stars[i].ypos + Stars[i].grandezza);
@@ -234,6 +164,7 @@ void Stars_Array() {
           else {
             ssd1306_putPixel8(Stars[i].xpos , Stars[i].ypos);
           }
+          //  if (Stars[i].contavelocita <= 1) { // IF qui per stelle CON lampeggio NB:attivare Stars[i].velocita
           Stars[i].contavelocita = Stars[i].velocita;
           Stars[i].ypos += Stars[i].passi;
           if ( Stars[i].ypos > hh - 1) {
@@ -270,32 +201,32 @@ void Stars_Array() {
     }
     timevis = millis();
   }
-
 }
 
 void ScrollText() {
   static unsigned long timescroll = 0;
   String strInfo = "";
-  char cstr[16];
+  char cstr[20];
   char menuChoice[20];
   static boolean primoGiro = false;
   //init
   if (!primoGiro) {
     for (int i = 0; i < 5; i++) {
-      strInfo = strInfo + strcpy_P(menuChoice, (char*)pgm_read_word(&(menu_Info[i])));
+      strInfo +=   strcpy_P(menuChoice, (char*)pgm_read_word(&(menu_Info[i])));
     }
     Row1.NewString(strInfo);
     primoGiro = true;
   }
 
-  if (timescroll + 500 < millis()) {
+  if (timescroll + 250 < millis()) {
     strInfo = Row1.ScrollT();
-    strInfo.toCharArray(cstr, 16);
+    Serial.println("-" +  strInfo + "-");
+    strInfo.toCharArray(cstr, 20);
+   // Serial.println(strInfo);
     ssd1306_setColor(RGB_COLOR8(255, 255, 255));
-    ssd1306_printFixed8(FARLEFT , 80, cstr , STYLE_BOLD);
+    ssd1306_printFixed8(FARLEFT+4 , 120, cstr , STYLE_BOLD);
     timescroll = millis();
   }
-
 }
 
 

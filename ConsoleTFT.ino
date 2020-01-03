@@ -11,22 +11,9 @@
 #include "Classes.h"
 
 
-SAppMenu menu;
-
-
-
-const char *menuItems[] =
-{
-  "draw bitmap",
-  "sprites",
-  "fonts",
-  "nano canvas",
-  "draw lines",
-};
-
-NanoPoint sprite;
-NanoEngine8 engine;
-uint8_t rotation = 0;
+//NanoPoint sprite;
+//NanoEngine8 engine;
+//uint8_t rotation = 0;
 
 //gestione led
 uint8_t pinInputLed = 2;
@@ -37,7 +24,7 @@ String inputString = "";         // a String to hold incoming data
 bool stringComplete = false;  // whether the string is complete
 
 //scroll
-TEFX Row1("", 16);
+TEFX Row1("", 20);
 
 void setup() {
   InitScreen();
@@ -49,13 +36,10 @@ void setup() {
 
   // initialize serial:
   Serial.begin(19200);
-  inputString.reserve(80);
+ // inputString.reserve(80);
 
   //vari
   goodRandomseed() ;
-  Serial.println("a");
-  Serial.println("b");
-  Serial.println("S");
 }
 
 void loop() {
@@ -63,5 +47,5 @@ void loop() {
   //serialZ80();
   Qix() ;
   Stars_Array() ;
- // ScrollText();
+ ScrollText();
 }
