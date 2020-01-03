@@ -8,8 +8,8 @@ void InputFromZ80() {
     LayoutScreen() ;
     ssd1306_positiveMode();
     ssd1306_setColor(RGB_COLOR8(255, 255, 255));
-    ssd1306_printFixed8(FARLEFT, 16, (char) F("Z80 RetroShield"), STYLE_BOLD);
-    ssd1306_printFixed8(FARLEFT, 24, (char) F("command say"), STYLE_BOLD);
+    ssd1306_printFixed8(FARLEFT, 16, "Z80 RetroShield", STYLE_BOLD);
+    ssd1306_printFixed8(FARLEFT, 24, "command say", STYLE_BOLD);
     primoGiro = true;
   }
   StatusLed = digitalRead(pinInputLed);
@@ -17,17 +17,17 @@ void InputFromZ80() {
     if (StatusLed) {
       ssd1306_negativeMode();
       ssd1306_setColor(RGB_COLOR8(0, 255, 0));
-      ssd1306_printFixed8(FARLEFT, 40, (char) F("ACTIVATE  "), STYLE_BOLD);
+      ssd1306_printFixed8(FARLEFT, 40, "ACTIVATE  ", STYLE_BOLD);
     }
     else {
       ssd1306_positiveMode();
       ssd1306_setColor(RGB_COLOR8(255, 0, 0));
-      ssd1306_printFixed8(FARLEFT, 40, (char) F("DEactivate"), STYLE_NORMAL);
+      ssd1306_printFixed8(FARLEFT, 40, "DEactivate", STYLE_NORMAL);
     }
     oldStatusLed = StatusLed;
     ssd1306_positiveMode();
     ssd1306_setColor(RGB_COLOR8(255, 255, 255));
-    ssd1306_printFixed8(FARLEFT, 56, (char) F("Other ") , STYLE_NORMAL);
+    ssd1306_printFixed8(FARLEFT, 56, "Other " , STYLE_NORMAL);
     ssd1306_printFixed8(FARLEFT + 42, 56, "  " , STYLE_NORMAL);
     ssd1306_printFixed8(FARLEFT + 42, 56, itoa(ccont, cstr, 10), STYLE_NORMAL);
     if (ccont == 0) ccont = 14;
@@ -42,7 +42,7 @@ void serialZ80() {
   if (!primoGiro) {
     ssd1306_positiveMode();
     ssd1306_setColor(RGB_COLOR8(255, 255, 255));
-    ssd1306_printFixed8(FARLEFT, 72, (char) F("Serial Input"), STYLE_NORMAL);
+    ssd1306_printFixed8(FARLEFT, 72, "Serial Input", STYLE_NORMAL);
     primoGiro = true;
   }
 
@@ -184,23 +184,26 @@ void Qix() {
 
 void Stars_Array() {
 #define NSTELLE  48
-  int ww = ssd1306_displayWidth() ;
-  int hh = ssd1306_displayHeight() ;
-  int timedelay = 25; //delay non bloccante
-  static unsigned long timevis = 0;
   //struttura stelle
   struct dstars {
     byte id;
     int xpos;
     int ypos;
-    int grandezza;
+    byte grandezza;
     byte velocita; //1:ad ogni step fai un passo, 2:ogni 2 step un passo
-    int contavelocita; //conteggio velocita, ogni stap tolgo 1 finche' non arrivo a zero
+    char contavelocita; //conteggio velocita, ogni stap tolgo 1 finche' non arrivo a 1
     byte passi; //quanti pixel avanzo
     byte colore[3];
+    char segno;
   };
   typedef struct dstars SDStars;
   static SDStars Stars[NSTELLE];
+  //
+  int ww = ssd1306_displayWidth() ;
+  int hh = ssd1306_displayHeight() ;
+  int timedelay = 25; //delay non bloccante
+  int stepcolore = 5;
+  static unsigned long timevis = 0;
   boolean trovato = false;
 
   if ( timevis + timedelay < millis()) {
@@ -244,6 +247,17 @@ void Stars_Array() {
       //disegna stella
       if (Stars[i].id > 0) {
         if (Stars[i].contavelocita == Stars[i].velocita) {
+          // calcolo colore: vado verso il bianco, il primo che arriva a 255, scendo verso il nero
+          if ((Stars[i].colore[0] == 255) || (Stars[i].colore[1] == 255) || (Stars[i].colore[2] == 255)) {
+            Stars[i].segno = -stepcolore;
+          }
+          if ((Stars[i].colore[0] == 128) || (Stars[i].colore[1] == 128) || (Stars[i].colore[2] == 128)) {
+            Stars[i].segno = stepcolore;
+          }
+          for (int g = 0; g < 2; g++) {
+            Stars[i].colore[g] = constrain((long) (Stars[i].colore[g] + stepcolore), 128, 255);
+          }
+          // fine calcolo colore
           ssd1306_setColor(RGB_COLOR8(Stars[i].colore[0], Stars[i].colore[1], Stars[i].colore[2]));
           if (Stars[i].grandezza > 0) {
             ssd1306_drawVLine8 (Stars[i].xpos , Stars[i].ypos - Stars[i].grandezza, Stars[i].ypos + Stars[i].grandezza);
@@ -260,9 +274,9 @@ void Stars_Array() {
 }
 
 void ScrollText() {
-    static unsigned long timescroll = 0;
+  static unsigned long timescroll = 0;
   String strInfo = "";
-  char cstr[10];
+  char cstr[16];
   char menuChoice[20];
   static boolean primoGiro = false;
   //init
@@ -276,7 +290,8 @@ void ScrollText() {
 
   if (timescroll + 500 < millis()) {
     strInfo = Row1.ScrollT();
-    strInfo.toCharArray(cstr, 10);
+    strInfo.toCharArray(cstr, 16);
+    ssd1306_setColor(RGB_COLOR8(255, 255, 255));
     ssd1306_printFixed8(FARLEFT , 80, cstr , STYLE_BOLD);
     timescroll = millis();
   }
