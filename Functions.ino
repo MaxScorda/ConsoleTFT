@@ -5,8 +5,10 @@ void InitScreen() {
   // RGB functions do not work in default SSD1306 compatible mode
   ssd1306_setMode( LCD_MODE_NORMAL );
   ssd1306_clearScreen8( );
-  //  ssd1306_createMenu( &menu, menuItems, sizeof(menuItems) / sizeof(char *) );
-  //  ssd1306_showMenu8( &menu );
+#if PROCEDURE==20
+  ssd1306_createMenu( &menu, menuItems, sizeof(menuItems) / sizeof(char *) );
+  ssd1306_showMenu8( &menu );
+#endif
 }
 
 void LayoutScreen() {

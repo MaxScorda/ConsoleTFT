@@ -1,6 +1,7 @@
 #ifndef Classes_H
 #define Classes_H
 
+#if PROCEDURE==50
 class Star {
   private:
     String nome;
@@ -21,4 +22,5 @@ class Star {
     }
 };
 //  INIT Star star1 = Star(1);
+#endif
 #endif

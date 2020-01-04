@@ -1,3 +1,4 @@
+#if PROCEDURE<=5
 void Qix() {
   //il principio e': determino una meta per x0,x1,y0,y1 e quando lo raggiungo lo cambio
 #define SPIRE  16
@@ -22,6 +23,7 @@ void Qix() {
   //init
 
   if (!primoGiro) {
+    //meglio senza ma da testare ancora
     /*
       for (int q = 0; q < NQIX; q++) {
       for (int i = 0; i < SPIRE; i++) {
@@ -112,7 +114,8 @@ void Stars_Array() {
   // 5 velocita' (passi)
   // colori pulsanti
   // 4 grandezze
-  // se configurato velocita e sistemati gli IF, fa le stelle a scomparsa/lampeggianti
+  // se configurato ATTIVALAMPEGGIO= 1 stelle scomparsa/lampeggianti. Sistemare annche i due IF
+#define ATTIVALAMPEGGIO  0
 #define NSTELLE  48
   //struttura stelle
   struct dstars {
@@ -144,10 +147,14 @@ void Stars_Array() {
           Stars[i].id = i + 1;
           Stars[i].xpos = RandNum(0, ww - 1);
           Stars[i].ypos = 0;
-          Stars[i].velocita = RandNum(1, 1);//1,5 Disattivato perche' si muovono a scatti. Attivate col lampeggio
+#if  ATTIVALAMPEGGIO==1
+          Stars[i].velocita = RandNum(1, 5);
+#else
+          Stars[i].velocita = RandNum(1, 1);
+#endif
           Stars[i].contavelocita = Stars[i].velocita;
-          Stars[i].passi = RandNum(1, 5);//1,3
-          Stars[i].grandezza = RandNum(0, 3);//1,3
+          Stars[i].passi = RandNum(1, 5);
+          Stars[i].grandezza = RandNum(0, 3);
           Stars[i].colore[0] = RandNum(128, 255);
           Stars[i].colore[1] = RandNum(128, 255);
           Stars[i].colore[2] = RandNum(128, 255);
@@ -155,7 +162,7 @@ void Stars_Array() {
         }
       }
       else {
-        if (Stars[i].contavelocita <= 1) { // IF qui per stelle senza lampeggio
+        if (Stars[i].contavelocita <= 1) { // ATTIVALAMPEGGIO IF qui per stelle senza lampeggio
           ssd1306_setColor(RGB_COLOR8(0, 0, 0));
           if (Stars[i].grandezza > 0) {
             ssd1306_drawVLine8 (Stars[i].xpos , Stars[i].ypos - Stars[i].grandezza, Stars[i].ypos + Stars[i].grandezza);
@@ -164,7 +171,7 @@ void Stars_Array() {
           else {
             ssd1306_putPixel8(Stars[i].xpos , Stars[i].ypos);
           }
-          //  if (Stars[i].contavelocita <= 1) { // IF qui per stelle CON lampeggio NB:attivare Stars[i].velocita
+          //  if (Stars[i].contavelocita <= 1) { // ATTIVALAMPEGGIO IF qui per stelle CON lampeggio NB:attivare Stars[i].velocita
           Stars[i].contavelocita = Stars[i].velocita;
           Stars[i].ypos += Stars[i].passi;
           if ( Stars[i].ypos > hh - 1) {
@@ -189,6 +196,7 @@ void Stars_Array() {
             Stars[i].colore[g] = constrain((long) (Stars[i].colore[g] + stepcolore), 128, 255);
           }
           // fine calcolo colore
+          //Se grandezza>0 (star di 1 punto), inutile disegnare i raggi, faccio solo il punto
           ssd1306_setColor(RGB_COLOR8(Stars[i].colore[0], Stars[i].colore[1], Stars[i].colore[2]));
           if (Stars[i].grandezza > 0) {
             ssd1306_drawVLine8 (Stars[i].xpos , Stars[i].ypos - Stars[i].grandezza, Stars[i].ypos + Stars[i].grandezza);
@@ -222,10 +230,73 @@ void ScrollText() {
     strInfo = Row1.ScrollT();
     Serial.println("-" +  strInfo + "-");
     strInfo.toCharArray(cstr, 20);
-   // Serial.println(strInfo);
+    // Serial.println(strInfo);
     ssd1306_setColor(RGB_COLOR8(255, 255, 255));
-    ssd1306_printFixed8(FARLEFT+4 , 120, cstr , STYLE_BOLD);
+    ssd1306_printFixed8(FARLEFT + 4 , 120, cstr , STYLE_BOLD);
     timescroll = millis();
+  }
+}
+#endif
+
+void SinDemo_1() {
+  int ww = ssd1306_displayWidth() ;
+  int hh = ssd1306_displayHeight() ;
+  static int x[2], y[2];
+  byte passo = 4;
+  byte ccont = 0;
+  float sinval;
+  static boolean primoGiro = false;
+  //init
+
+  if (!primoGiro) {
+    ssd1306_setColor(RGB_COLOR8(255, 255, 255));
+    for (int yy = 27; yy >= 24; yy = yy - 8) {
+      for (int xx = 0; xx < ww; xx++) {
+        sinval = returnSin((ww - 1) / 4, 16 + (ccont * 2) % 16, xx);
+        x[0] = xx + (ccont * passo) - 32;
+        y[0] = yy + sinval;
+        ssd1306_putPixel8(x[0] , y[0] );
+        if (xx > 0)
+          ssd1306_drawLine8(x[0], y[0], x[1], y[1]);
+
+      x[1] = x[0];
+      y[1] = y[0];
+      // Serial.println((float)sinval, 5);
+    }
+    ccont++;
+  }
+  primoGiro = true;
+  ssd1306_drawLine8(0, 68, ssd1306_displayWidth() - 1, 68);
+}
+}
+
+void SinDemo_2() {
+  int ww = ssd1306_displayWidth() ;
+  int hh = ssd1306_displayHeight() ;
+  int yy = 64;
+  static int x[2], y[2];
+  byte passo = 2;
+  static byte ccont = 0;
+  static unsigned long timevis = 0;
+  byte timedelay = 50; //delay non bloccante
+  float sinval;
+
+  if ( timevis + timedelay < millis()) {
+    ssd1306_setColor(RGB_COLOR8(255, 255, 255));
+    ssd1306_clearScreen8( );
+    for (int xx = 0; xx < ww; xx++) {
+      sinval = returnSin((ww - 1) / 4, 16 + (ccont * 2) % 16, xx+ccont);
+      x[0] = xx + (ccont * passo);
+      y[0] = yy + sinval;
+      ssd1306_putPixel8(x[0] , y[0] );
+      if (xx > 0)
+        ssd1306_drawLine8(x[0], y[0], x[1], y[1]);
+      x[1] = x[0];
+      y[1] = y[0];
+      // Serial.println((float)sinval, 5);
+    }
+    ccont+=passo;
+    timevis = millis();
   }
 }
 

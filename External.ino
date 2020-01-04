@@ -1,5 +1,5 @@
-/*
-  void InputFromZ80() {
+#if PROCEDURE==10
+void InputFromZ80() {
   //gestione led
   static boolean primoGiro = false;
   static int ccont = 14;
@@ -34,9 +34,9 @@
     if (ccont == 0) ccont = 14;
     ccont--;
   }
-  }
+}
 
-  void serialZ80() {
+void serialZ80() {
   static boolean primoGiro = false;
   char cstr[10];
   //I know setup but i want to keep it clean
@@ -57,9 +57,9 @@
     inputString = "";
     stringComplete = false;
   }
-  }
+}
 
-  void serialEvent() {
+void serialEvent() {
   byte ccont = 0;
   while (Serial.available()) {
     char inChar = (char)Serial.read();
@@ -73,5 +73,5 @@
     stringComplete = true;
     ccont++;
   }
-  }
-*/
+}
+#endif

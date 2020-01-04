@@ -1,4 +1,4 @@
-/*
+#if PROCEDURE==20
 void Oldloop(){
     delay(1000);
     switch (ssd1306_menuSelection(&menu))
@@ -229,4 +229,4 @@ void Qix_old() {
     timevis = millis();
   }
 }
-*/
+#endif

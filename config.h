@@ -2,12 +2,8 @@
 #define config_H
 
 #include <avr/pgmspace.h>
-/*
-   Heart image below is defined directly in flash memory.
-   This reduces SRAM consumption.
-   The image is defined from bottom to top (bits), from left to
-   right (bytes).
-*/
+
+#define FARLEFT  1
 
 const char Info_00[] PROGMEM = "Demo ConsoleTFT 0.9 ";
 const char Info_01[] PROGMEM = "(c) 2019-2020 ";
@@ -19,7 +15,13 @@ const char Info_04[] PROGMEM = " ... ";
 const char* const menu_Info[] PROGMEM = {Info_00, Info_01, Info_02, Info_03, Info_04
                                         };
 
-                                        
+ /*
+   Heart image below is defined directly in flash memory.
+   This reduces SRAM consumption.
+   The image is defined from bottom to top (bits), from left to
+   right (bytes).
+*/
+                                       
 const PROGMEM uint8_t heartImage[8] =
 {
   0B00001110,
