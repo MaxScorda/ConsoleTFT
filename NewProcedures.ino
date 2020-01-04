@@ -238,6 +238,7 @@ void ScrollText() {
 }
 #endif
 
+#if PROCEDURE==6
 void SinDemo_1() {
   int ww = ssd1306_displayWidth() ;
   int hh = ssd1306_displayHeight() ;
@@ -259,15 +260,15 @@ void SinDemo_1() {
         if (xx > 0)
           ssd1306_drawLine8(x[0], y[0], x[1], y[1]);
 
-      x[1] = x[0];
-      y[1] = y[0];
-      // Serial.println((float)sinval, 5);
+        x[1] = x[0];
+        y[1] = y[0];
+        // Serial.println((float)sinval, 5);
+      }
+      ccont++;
     }
-    ccont++;
+    primoGiro = true;
+    ssd1306_drawLine8(0, 68, ssd1306_displayWidth() - 1, 68);
   }
-  primoGiro = true;
-  ssd1306_drawLine8(0, 68, ssd1306_displayWidth() - 1, 68);
-}
 }
 
 void SinDemo_2() {
@@ -285,7 +286,7 @@ void SinDemo_2() {
     ssd1306_setColor(RGB_COLOR8(255, 255, 255));
     ssd1306_clearScreen8( );
     for (int xx = 0; xx < ww; xx++) {
-      sinval = returnSin((ww - 1) / 4, 16 + (ccont * 2) % 16, xx+ccont);
+      sinval = returnSin((ww - 1) / 4, 16 + (ccont * 2) % 16, xx + ccont);
       x[0] = xx + (ccont * passo);
       y[0] = yy + sinval;
       ssd1306_putPixel8(x[0] , y[0] );
@@ -295,7 +296,7 @@ void SinDemo_2() {
       y[1] = y[0];
       // Serial.println((float)sinval, 5);
     }
-    ccont+=passo;
+    ccont += passo;
     timevis = millis();
   }
 }
@@ -313,3 +314,68 @@ float returnSin(byte lenx, byte hiy, int vval) {
   ret = sin((vval * duepi) / lenx) * hiy;
   return ret;
 }
+#endif
+
+
+#if PROCEDURE==7
+void LinkedPoints() {
+#define NPUNTI  6
+  struct dpunti {
+    byte xpos; //meglio int avendo spazio
+    byte ypos; //meglio int avendo spazio
+    byte grandezza;
+    byte velocita; //1:ad ogni step fai un passo, 2:ogni 2 step un passo
+    char contavelocita; //conteggio velocita, ogni stap tolgo 1 finche' non arrivo a 1
+    byte passox; //quanti pixel avanzo
+    byte passoy;
+    byte colore[3];
+    char segnox;
+    char segnoy;
+  };
+  typedef struct dpunti SDOunti;
+  static SDPunti punti[NPUNTI];
+  int ww = ssd1306_displayWidth() ;
+  int hh = ssd1306_displayHeight() ;
+  static unsigned long timevis = 0;
+  static byte idx = 0;
+  byte idxnow;
+  byte timedelay = 50; //delay non bloccante
+  static boolean primoGiro = false;
+  //init
+  if (!primoGiro) {
+    for (int i = 0; i < NPUNTI; i++) {
+      punti[i].xpos = RendNum(0, ww - 1);
+      punti[i].ypos = RandNum(0, hh - 1);
+      punti[idx].segnox = 1;
+      punti[idx].passox = RandNum(1, 3);
+      punti[idx].segnoy = 1;
+      punti[idx].passoy = RandNum(1, 3);
+    }
+    primoGiro = true;
+  }
+
+  if ( timevis + timedelay < millis()) {
+    for (int i = 0; i < NPUNTI; i++) {
+      idxnow = (idxnow + i) % NPUNTI;
+      ssd1306_setColor(RGB_COLOR8(0, 0, 0));
+      ssd1306_drawLine8(punti[idx]xpos, punti[idx].posy, punti[idxnow].posx, punti[idxnow].posy);
+      punti[idx].posx = constrain(punti[idx].posx + (punti[idx].passox) * punti[idx].segnox, 0, ww - 1);
+      //x
+      if ((punti[idx].posx == ww - 1) || (punti[idx].posx == 0)) {
+        punti[idx].segnox = -punti[idx].segnox;
+      }
+      //y
+      punti[idx].posy = constrain(punti[idx].posy + (punti[idx].passoy) * punti[idx].segnoy, 0, hh - 1);
+      if (punti[idx].posy == hh - 1) || (punti[idx].posy == 0)) {
+        punti[idx].segnoy = -punti[idx].segnoy;
+      }
+      ssd1306_setColor(RGB_COLOR8(255, 255, 255));
+      ssd1306_drawLine8(punti[idx]xpos, punti[idx].posy, punti[idxnow].posx, punti[idxnow].posy);
+    }
+
+    idx = (idx + 1) % NPUNTI;
+    timevis = millis();
+  }
+}
+
+#endif
