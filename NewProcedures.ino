@@ -1,4 +1,4 @@
-#if PROCEDURE<=5
+#if PROCEDURE==1 || PROCEDURE==5
 void Qix() {
   //il principio e': determino una meta per x0,x1,y0,y1 e quando lo raggiungo lo cambio
 #define SPIRE  16
@@ -47,7 +47,6 @@ void Qix() {
     */
     primoGiro = true;
   }
-
 
   if ( timevis + timedelay < millis()) {
     idxprec = (spireidx + 1) % SPIRE;
@@ -108,7 +107,9 @@ void Qix() {
     timevis = millis();
   }
 }
+#endif
 
+#if PROCEDURE==2 || PROCEDURE==5 || PROCEDURE==7
 void Stars_Array() {
   //Stelle
   // 5 velocita' (passi)
@@ -211,6 +212,9 @@ void Stars_Array() {
   }
 }
 
+#endif
+
+#if PROCEDURE==3 || PROCEDURE==5 || PROCEDURE==7
 void ScrollText() {
   static unsigned long timescroll = 0;
   String strInfo = "";
@@ -328,51 +332,67 @@ void LinkedPoints() {
     char contavelocita; //conteggio velocita, ogni stap tolgo 1 finche' non arrivo a 1
     byte passox; //quanti pixel avanzo
     byte passoy;
-    byte colore[3];
     char segnox;
     char segnoy;
   };
-  typedef struct dpunti SDOunti;
+  typedef struct dpunti SDPunti;
   static SDPunti punti[NPUNTI];
+  static byte colore[3][2];
   int ww = ssd1306_displayWidth() ;
   int hh = ssd1306_displayHeight() ;
   static unsigned long timevis = 0;
   static byte idx = 0;
   byte idxnow;
-  byte timedelay = 50; //delay non bloccante
+  byte timedelay = 25; //delay non bloccante
   static boolean primoGiro = false;
   //init
   if (!primoGiro) {
     for (int i = 0; i < NPUNTI; i++) {
-      punti[i].xpos = RendNum(0, ww - 1);
+      punti[i].xpos = RandNum(0, ww - 1);
       punti[i].ypos = RandNum(0, hh - 1);
-      punti[idx].segnox = 1;
-      punti[idx].passox = RandNum(1, 3);
-      punti[idx].segnoy = 1;
-      punti[idx].passoy = RandNum(1, 3);
+      punti[i].segnox = 1;
+      punti[i].passox = RandNum(1, 5);
+      punti[i].segnoy = 1;
+      punti[i].passoy = RandNum(1, 5);
+    }
+    //colori
+    for (int col = 0; col < 3; col++) {
+      colore[col][1] = 128;
     }
     primoGiro = true;
   }
 
   if ( timevis + timedelay < millis()) {
-    for (int i = 0; i < NPUNTI; i++) {
-      idxnow = (idxnow + i) % NPUNTI;
-      ssd1306_setColor(RGB_COLOR8(0, 0, 0));
-      ssd1306_drawLine8(punti[idx]xpos, punti[idx].posy, punti[idxnow].posx, punti[idxnow].posy);
-      punti[idx].posx = constrain(punti[idx].posx + (punti[idx].passox) * punti[idx].segnox, 0, ww - 1);
-      //x
-      if ((punti[idx].posx == ww - 1) || (punti[idx].posx == 0)) {
-        punti[idx].segnox = -punti[idx].segnox;
-      }
-      //y
-      punti[idx].posy = constrain(punti[idx].posy + (punti[idx].passoy) * punti[idx].segnoy, 0, hh - 1);
-      if (punti[idx].posy == hh - 1) || (punti[idx].posy == 0)) {
-        punti[idx].segnoy = -punti[idx].segnoy;
-      }
-      ssd1306_setColor(RGB_COLOR8(255, 255, 255));
-      ssd1306_drawLine8(punti[idx]xpos, punti[idx].posy, punti[idxnow].posx, punti[idxnow].posy);
+    ssd1306_setColor(RGB_COLOR8(0, 0, 0));
+    for (int i = 1; i < NPUNTI; i++) {
+      idxnow = (idx + i) % NPUNTI;
+      ssd1306_drawLine8(punti[idx].xpos, punti[idx].ypos, punti[idxnow].xpos, punti[idxnow].ypos);
     }
-
+    //x
+    punti[idx].xpos = constrain(punti[idx].xpos + (punti[idx].passox) * punti[idx].segnox, 0, ww - 1);
+    if ((punti[idx].xpos == ww - 1) || (punti[idx].xpos == 0)) {
+      punti[idx].segnox = -punti[idx].segnox;
+      punti[idx].passox = RandNum(1, 5);
+    }
+    //y
+    punti[idx].ypos = constrain(punti[idx].ypos + (punti[idx].passoy) * punti[idx].segnoy, 0, hh - 1);
+    if ((punti[idx].ypos == hh - 1) || (punti[idx].ypos == 0)) {
+      punti[idx].segnoy = -punti[idx].segnoy;
+      punti[idx].passoy = RandNum(1, 5);
+    }
+    for (int i = 1; i < NPUNTI; i++) {
+      idxnow = (idx + i) % NPUNTI;
+      ssd1306_setColor(RGB_COLOR8(colore[0][0], colore[1][0], colore[2][0]));
+      ssd1306_drawLine8(punti[idx].xpos, punti[idx].ypos, punti[idxnow].xpos, punti[idxnow].ypos);
+    }
+      //colori
+  if (idx%2== 0) {
+    for (int col = 0; col < 3; col++) {
+      if (colore[col][0] == colore[col][1]) colore[col][1] = RandNum(128, 255);
+      if (colore[col][0] > colore[col][1]) colore[col][0]--;
+      if (colore[col][0] < colore[col][1]) colore[col][0]++;
+    }
+  }
     idx = (idx + 1) % NPUNTI;
     timevis = millis();
   }

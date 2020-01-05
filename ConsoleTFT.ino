@@ -3,6 +3,16 @@
      Attiny SPI PINS:     connect LCD to D4 (D/C), GND (CS), D3 (RES), D1(DIN), D2(CLK)
      ESP8266: connect LCD to D1(D/C), D2(CS), RX(RES), D7(DIN), D5(CLK)
 */
+
+//0 everything (not used)
+//1-5 procedure demo qix,stars, scroll
+//6 SinDemo
+//7 procedure LinkedPoints, stars, scroll
+//10 I/O Z80
+//20 old procedure
+//50 extra demo
+#define PROCEDURE  7
+
 #include "ssd1306.h"
 #if PROCEDURE==20
 #include "nano_engine.h"
@@ -11,14 +21,6 @@
 #include <TEFX.h>
 #include "Config.h";
 #include "Classes.h"
-
-//0 Tutto
-//1-5 procedure demo qix,stars, scroll
-//6 SinDemo
-//10 I/O Z80
-//20 old procedure
-//50 extra demo
-#define PROCEDURE  5
 
 #if PROCEDURE==20
 gestione sprite
@@ -72,5 +74,11 @@ void loop() {
 
 #if PROCEDURE==6
   SinDemo_2();
+#endif
+
+#if PROCEDURE==7
+  LinkedPoints();
+  Stars_Array() ;
+  ScrollText();
 #endif
 }
