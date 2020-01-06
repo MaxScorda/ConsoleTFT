@@ -423,8 +423,8 @@ void MoireBars() {
   byte mainpasso[NMOIRE] = {8, 4, 16};
   if (!primoGiro) {
     maincounter[0] = 0;
-    maincounter[1] = (ww ) + (hh );
-    maincounter[2] = 2 * (ww ) + (hh  );
+    maincounter[1] = (ww-1 ) + (hh-1 );
+    maincounter[2] = 2 * (ww-1 ) + (hh-1  );
     primoGiro = true;
   }
   if ( timevis + timedelay < millis()) {
@@ -433,28 +433,28 @@ void MoireBars() {
       ssd1306_setColor(RGB_COLOR8(0, 0, 0));
       ssd1306_drawLine8(riga[m][idxprec].x[0], riga[m][idxprec].y[0], riga[m][idxprec].x[1], riga[m][idxprec].y[1]);
 
-      if (maincounter[m] >= (2 * (ww )) + (hh )) {
+      if (maincounter[m] >= (2 * (ww-1 )) + (hh-1 )) {
         riga[m][barsidx].x[0] = 0;
-        riga[m][barsidx].y[0] = (hh ) - (maincounter[m] % hh);
+        riga[m][barsidx].y[0] = (hh-1 ) - (maincounter[m] % hh);
         riga[m][barsidx].x[1] = maincounter[m] % ww;
         riga[m][barsidx].y[1] = 0;
       }
-      else if (maincounter[m] >= (ww ) + (hh )) {
-        riga[m][barsidx].x[0] = (ww ) - (maincounter[m] % ww);
-        riga[m][barsidx].y[0] = (hh );
+      else if (maincounter[m] >= (ww-1 ) + (hh -1)) {
+        riga[m][barsidx].x[0] = (ww-1 ) - (maincounter[m] % ww);
+        riga[m][barsidx].y[0] = (hh -1);
         riga[m][barsidx].x[1] = 0;
-        riga[m][barsidx].y[1] = (hh ) - (maincounter[m] % hh);
+        riga[m][barsidx].y[1] = (hh-1 ) - (maincounter[m] % hh);
       }
-      else if (maincounter[m] >= ww ) {
-        riga[m][barsidx].x[0] = (ww );
+      else if (maincounter[m] >= ww -1) {
+        riga[m][barsidx].x[0] = (ww-1 );
         riga[m][barsidx].y[0] = maincounter[m] % hh;
-        riga[m][barsidx].x[1] = (ww ) - (maincounter[m] % ww) ;
-        riga[m][barsidx].y[1] = (hh );
+        riga[m][barsidx].x[1] = (ww -1) - (maincounter[m] % ww) ;
+        riga[m][barsidx].y[1] = (hh-1 );
       }
       else if (maincounter[m] >= 0) {
         riga[m][barsidx].x[0] = maincounter[m] % ww;
         riga[m][barsidx].y[0] = 0;
-        riga[m][barsidx].x[1] =  (ww );
+        riga[m][barsidx].x[1] =  (ww -1);
         riga[m][barsidx].y[1] =  maincounter[m] % hh;
       }
       //colori
