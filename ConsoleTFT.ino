@@ -8,10 +8,11 @@
 //1-5 procedure demo qix,stars, scroll
 //6 SinDemo
 //7 procedure LinkedPoints, stars, scroll
+//8 Moire
 //10 I/O Z80
 //20 old procedure
 //50 extra demo
-#define PROCEDURE  7
+#define PROCEDURE  8
 
 #include "ssd1306.h"
 #if PROCEDURE==20
@@ -69,7 +70,7 @@ void loop() {
 #if PROCEDURE<=5
   Qix() ;
   Stars_Array() ;
-  ScrollText();
+  ScrollText(120);
 #endif
 
 #if PROCEDURE==6
@@ -77,8 +78,14 @@ void loop() {
 #endif
 
 #if PROCEDURE==7
-  LinkedPoints();
   Stars_Array() ;
-  ScrollText();
+  LinkedPoints();
+  ScrollText(120);
+#endif
+
+#if PROCEDURE==8
+ Stars_Array() ;
+  MoireBars();
+  ScrollText(60);
 #endif
 }

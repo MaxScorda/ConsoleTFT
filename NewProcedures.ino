@@ -8,8 +8,8 @@ void Qix() {
   static unsigned long timevis = 0;
   int ww = ssd1306_displayWidth() ;
   int hh = ssd1306_displayHeight() ;
-  static byte x[NQIX][SPIRE][3];
-  static byte y[NQIX][SPIRE][3];
+  static byte x[NQIX][SPIRE][2];
+  static byte y[NQIX][SPIRE][2];
   //Prima dimensione 0:valori x, 1:valori y, seconda dimensione x[0],x[1]
   static byte destinazione[NQIX][2][2];
   //passo,x=0 e y=1   VEDERE SE FARNE 4
@@ -109,7 +109,7 @@ void Qix() {
 }
 #endif
 
-#if PROCEDURE==2 || PROCEDURE==5 || PROCEDURE==7
+#if PROCEDURE==2 || PROCEDURE==5 || PROCEDURE==7|| PROCEDURE==8
 void Stars_Array() {
   //Stelle
   // 5 velocita' (passi)
@@ -214,8 +214,8 @@ void Stars_Array() {
 
 #endif
 
-#if PROCEDURE==3 || PROCEDURE==5 || PROCEDURE==7
-void ScrollText() {
+#if PROCEDURE==3 || PROCEDURE==5 || PROCEDURE==7 || PROCEDURE==8
+void ScrollText(int posy) {
   static unsigned long timescroll = 0;
   String strInfo = "";
   char cstr[20];
@@ -232,11 +232,9 @@ void ScrollText() {
 
   if (timescroll + 250 < millis()) {
     strInfo = Row1.ScrollT();
-    Serial.println("-" +  strInfo + "-");
     strInfo.toCharArray(cstr, 20);
-    // Serial.println(strInfo);
     ssd1306_setColor(RGB_COLOR8(255, 255, 255));
-    ssd1306_printFixed8(FARLEFT + 4 , 120, cstr , STYLE_BOLD);
+    ssd1306_printFixed8(FARLEFT + 4 , posy, cstr , STYLE_BOLD);
     timescroll = millis();
   }
 }
@@ -385,17 +383,93 @@ void LinkedPoints() {
       ssd1306_setColor(RGB_COLOR8(colore[0][0], colore[1][0], colore[2][0]));
       ssd1306_drawLine8(punti[idx].xpos, punti[idx].ypos, punti[idxnow].xpos, punti[idxnow].ypos);
     }
-      //colori
-  if (idx%2== 0) {
-    for (int col = 0; col < 3; col++) {
-      if (colore[col][0] == colore[col][1]) colore[col][1] = RandNum(128, 255);
-      if (colore[col][0] > colore[col][1]) colore[col][0]--;
-      if (colore[col][0] < colore[col][1]) colore[col][0]++;
+    //colori
+    if (idx % 2 == 0) {
+      for (int col = 0; col < 3; col++) {
+        if (colore[col][0] == colore[col][1]) colore[col][1] = RandNum(128, 255);
+        if (colore[col][0] > colore[col][1]) colore[col][0]--;
+        if (colore[col][0] < colore[col][1]) colore[col][0]++;
+      }
     }
-  }
     idx = (idx + 1) % NPUNTI;
     timevis = millis();
   }
 }
+#endif
 
+
+
+#if PROCEDURE==8
+void MoireBars() {
+#define RIGHE  16
+#define NMOIRE  3
+  struct driga {
+    byte x[2]; //meglio int avendo spazio
+    byte y[2]; //meglio int avendo spazio
+  };
+  typedef struct driga SDRiga;
+  static SDRiga riga[NMOIRE][RIGHE];
+  byte colore[NMOIRE][3][2] ;
+  int ww = ssd1306_displayWidth() ;
+  int hh = ssd1306_displayHeight() ;
+  int perimetro = (ww * 2) + (hh * 2);
+  static unsigned long timevis = 0;
+  byte timedelay = 25; //delay non bloccante
+  static byte barsidx = 0;
+  static int maincounter[NMOIRE];
+  byte idxprec;
+  static boolean primoGiro = false;
+  //init obbligatorio
+  byte mainpasso[NMOIRE] = {8, 4, 16};
+  if (!primoGiro) {
+    maincounter[0] = 0;
+    maincounter[1] = (ww ) + (hh );
+    maincounter[2] = 2 * (ww ) + (hh  );
+    primoGiro = true;
+  }
+  if ( timevis + timedelay < millis()) {
+    idxprec = (barsidx + 1) % RIGHE;
+    for (int m = 0; m < NMOIRE; m++) {
+      ssd1306_setColor(RGB_COLOR8(0, 0, 0));
+      ssd1306_drawLine8(riga[m][idxprec].x[0], riga[m][idxprec].y[0], riga[m][idxprec].x[1], riga[m][idxprec].y[1]);
+
+      if (maincounter[m] >= (2 * (ww )) + (hh )) {
+        riga[m][barsidx].x[0] = 0;
+        riga[m][barsidx].y[0] = (hh ) - (maincounter[m] % hh);
+        riga[m][barsidx].x[1] = maincounter[m] % ww;
+        riga[m][barsidx].y[1] = 0;
+      }
+      else if (maincounter[m] >= (ww ) + (hh )) {
+        riga[m][barsidx].x[0] = (ww ) - (maincounter[m] % ww);
+        riga[m][barsidx].y[0] = (hh );
+        riga[m][barsidx].x[1] = 0;
+        riga[m][barsidx].y[1] = (hh ) - (maincounter[m] % hh);
+      }
+      else if (maincounter[m] >= ww ) {
+        riga[m][barsidx].x[0] = (ww );
+        riga[m][barsidx].y[0] = maincounter[m] % hh;
+        riga[m][barsidx].x[1] = (ww ) - (maincounter[m] % ww) ;
+        riga[m][barsidx].y[1] = (hh );
+      }
+      else if (maincounter[m] >= 0) {
+        riga[m][barsidx].x[0] = maincounter[m] % ww;
+        riga[m][barsidx].y[0] = 0;
+        riga[m][barsidx].x[1] =  (ww );
+        riga[m][barsidx].y[1] =  maincounter[m] % hh;
+      }
+      //colori
+      for (int i = 0; i < 3; i++) {
+        if (colore[m][i][0] == colore[m][i][1]) colore[m][i][1] = RandNum(128, 255);
+        if (colore[m][i][0] > colore[m][i][1]) colore[m][i][0]--;
+        if (colore[m][i][0] < colore[m][i][1]) colore[m][i][0]++;
+      }
+      ssd1306_setColor(RGB_COLOR8(colore[m][0][0], colore[m][1][0], colore[m][2][0]));
+      ssd1306_drawLine8(riga[m][barsidx].x[0], riga[m][barsidx].y[0], riga[m][barsidx].x[1], riga[m][barsidx].y[1]);
+
+      maincounter[m] = (maincounter[m] + mainpasso[m]) % perimetro;
+    }
+    barsidx = (barsidx + 1) % RIGHE;
+    timevis = millis();
+  }
+}
 #endif
