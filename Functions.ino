@@ -1,8 +1,9 @@
 void InitScreen() {
   //  ssd1306_setFixedFont(free_calibri11x12);
   ssd1306_setFixedFont(ssd1306xled_font6x8);
-  il9163_128x128_spi_init(12, 10, 9);
-    il9163_setOffset(2, 1);
+  st7735_128x160_spi_init(8, 10, 9);;
+  // il9163_128x128_spi_init(12, 10, 9);
+  //   il9163_setOffset(2, 1);
   // RGB functions do not work in default SSD1306 compatible mode
   ssd1306_setMode( LCD_MODE_NORMAL );
   ssd1306_clearScreen8( );

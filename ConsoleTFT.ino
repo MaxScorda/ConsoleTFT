@@ -12,7 +12,7 @@
 //10 I/O Z80
 //20 old procedure
 //50 extra demo
-#define PROCEDURE  8
+#define PROCEDURE  5
 
 #include "ssd1306.h"
 #if PROCEDURE==20
